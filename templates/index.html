@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Predictor</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body {
+            background-linear-gradient: to right, #f3f4f6, #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <div class="bg-white shadow-2xl rounded-2xl max-w-4xl w-full p-6 md:p-8 my-4 border border-gray-100">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight">🏠 Housing Valuation Machine Learning Engine</h1>
+            <p class="text-gray-500 mt-2">Provide the structural features below to evaluate estimated market prices.</p>
+        </div>
+
+        <!-- Result Box Area -->
+        {% if price is not none %}
+        <div class="mb-8 p-5 rounded-xl border {{ 'bg-red-50 border-red-200 text-red-700' if 'Error' in price|string else 'bg-green-50 border-green-200 text-green-800' }}">
+            <div class="text-center">
+                {% if 'Error' in price|string %}
+                    <h3 class="text-lg font-bold">Calculation Failure</h3>
+                    <p class="text-sm font-mono mt-1">{{ price }}</p>
+                {% else %}
+                    <h3 class="text-sm font-medium tracking-wide uppercase opacity-75">Estimated Property Value</h3>
+                    <p class="text-4xl font-black mt-1 tracking-tight">${{ "{:,.2f}".format(price) }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Input Form Structure -->
+        <form action="/" method="POST" class="space-y-6">
+            
+            <!-- Numerical Specifications Section -->
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <h2 class="text-xs font-bold text-gray-400 tracking-wider uppercase mb-4">1. Structural Metrics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="area" class="block text-sm font-semibold text-gray-700 mb-1">Total Area (sq ft)</label>
+                        <input type="number" id="area" name="area" step="any" required placeholder="e.g. 7420"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label for="bedrooms" class="block text-sm font-semibold text-gray-700 mb-1">Bedrooms</label>
+                        <input type="number" id="bedrooms" name="bedrooms" required placeholder="e.g. 4"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label for="bathrooms" class="block text-sm font-semibold text-gray-700 mb-1">Bathrooms</label>
+                        <input type="number" id="bathrooms" name="bathrooms" required placeholder="e.g. 2"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label for="stories" class="block text-sm font-semibold text-gray-700 mb-1">Stories / Floors</label>
+                        <input type="number" id="stories" name="stories" required placeholder="e.g. 3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categorical Configurations Section -->
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <h2 class="text-xs font-bold text-gray-400 tracking-wider uppercase mb-4">2. Amenities & Property Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="mainroad" class="block text-sm font-semibold text-gray-700 mb-1">Mainroad Access</label>
+                        <select id="mainroad" name="mainroad" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="guestroom" class="block text-sm font-semibold text-gray-700 mb-1">Has Guestroom</label>
+                        <select id="guestroom" name="guestroom" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="basement" class="block text-sm font-semibold text-gray-700 mb-1">Has Basement</label>
+                        <select id="basement" name="basement" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="hotwaterheating" class="block text-sm font-semibold text-gray-700 mb-1">Hot Water Heating</label>
+                        <select id="hotwaterheating" name="hotwaterheating" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="airconditioning" class="block text-sm font-semibold text-gray-700 mb-1">Air Conditioning</label>
+                        <select id="airconditioning" name="airconditioning" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="parking" class="block text-sm font-semibold text-gray-700 mb-1">Parking Spaces</label>
+                        <select id="parking" name="parking" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="prefarea" class="block text-sm font-semibold text-gray-700 mb-1">Preferred Area</label>
+                        <select id="prefarea" name="prefarea" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="furnishingstatus" class="block text-sm font-semibold text-gray-700 mb-1">Furnishing Status</label>
+                        <select id="furnishingstatus" name="furnishingstatus" required class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="semi-furnished">Semi-Furnished</option>
+                            <option value="unfurnished">Unfurnished</option>
+                            <option value="furnished">Furnished</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button Trigger -->
+            <div class="pt-2">
+                <button type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all cursor-pointer text-center text-md tracking-wide">
+                    Calculate Valuation Price
+                </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
