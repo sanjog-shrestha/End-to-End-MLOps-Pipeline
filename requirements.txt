@@ -1,2 +1,8 @@
 gunicorn==21.2.0
 flask
+flask
+pandas
+numpy
+scikit-learn
+xgboost
+joblibs
