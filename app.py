@@ -1,36 +1,24 @@
-from flask import Flask, render_template, request
+from fastapi import FastAPI, HTTPException
 import pandas as pd
-import numpy as np
 import joblib
-app = Flask(__name__)
-model = joblib.load("house_price_xgb_model.pkl")
-@app.route("/", methods=["GET", "POST"])
-def home():
-    predicted_price = None
-    if request.method == "POST":
-        try:
-            input_data = {
-                'area': [float(request.form['area'])],
-                'bedrooms': [int(request.form['bedrooms'])],
-                'bathrooms': [int(request.form['bathrooms'])],
-                'stories': [int(request.form['stories'])],
-                'mainroad': [request.form['mainroad']],
-                'guestroom': [request.form['guestroom']],
-                'basement': [request.form['basement']],
-                'hotwaterheating': [request.form['hotwaterheating']],
-                'airconditioning': [request.form['airconditioning']],
-                'parking': [int(request.form['parking'])],
-                'prefarea': [request.form['prefarea']],
-                'furnishingstatus': [request.form['furnishingstatus']]
-            }
+import uvicorn
 
-            df = pd.DataFrame(input_data)
-            pred_log = model.predict(df)
-            predicted_price = np.expm1(pred_log)[0]  # convert log back to price
-        except Exception as e:
-            predicted_price = f"Error: {str(e)}"
+app = FastAPI(title="Student Risk Prediction API", description="API for predicting student risk using a trained model.", version="1.0.0")
 
-    return render_template("index.html", price=predicted_price)
+model_pipe = joblib.load("model.pkl")
+
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
+
+@app.post("/predict")
+def predict(data: dict):
+    try:
+        df = pd.DataFrame([data])
+        prediction = model_pipe.predict(df)
+        return {"result": prediction.tolist()[0]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

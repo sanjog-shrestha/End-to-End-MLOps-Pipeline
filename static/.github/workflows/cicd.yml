@@ -1,0 +1,48 @@
+name: CI/CD using CML
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup CML
+        uses: iterative/setup-cml@v2
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Train and Evaluate Model
+        run: |
+          python train.py
+      
+      - name: Generate CML Report
+        env:
+          REPO_TOKEN: ${{ secrets.CML_TOKEN }}
+        run: |
+          echo "# Student Risk Prediction Results" > report.md
+          echo "## Model Performance Metrics." >> report.md
+          echo "![](./plots/results.png)" >> report.md
+          cml comment create report.md
+      
+      - name: Build Docker Image
+        run: |
+          docker build -t student-risk-api .
+
+      - name: Run Docker Container (smoke test)
+        run: |
+          docker run -d -p 8000:8000 student-risk-api
+          sleep 5
+          curl -s http://localhost:8000/ || (echo "Container failed health check" && exit 1)
