@@ -7,7 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app.py /app/
 COPY model.pkl /app/
-COPY static /app/static/
 
 EXPOSE 8000
 
